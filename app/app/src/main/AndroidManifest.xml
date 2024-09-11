@@ -13,6 +13,18 @@
         android:theme="@style/Theme.SampleCode"
         tools:targetApi="31">
         <activity
+            android:name=".SecondActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SplashActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
@@ -22,9 +34,12 @@
             </intent-filter>
         </activity>
 
-        <meta-data android:name="com.doinglab.foodlens.sdk.apptoken" android:value="@string/foodlens_app_token"/>
-        <meta-data android:name="com.doinglab.foodlens.sdk.companytoken" android:value="@string/foodlens_company_token"/>
-
+        <meta-data
+            android:name="com.doinglab.foodlens.sdk.apptoken"
+            android:value="@string/foodlens_app_token" />
+        <meta-data
+            android:name="com.doinglab.foodlens.sdk.companytoken"
+            android:value="@string/foodlens_company_token" />
     </application>
 
 </manifest>

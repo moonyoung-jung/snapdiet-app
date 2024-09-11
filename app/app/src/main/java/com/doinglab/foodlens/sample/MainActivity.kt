@@ -1,11 +1,12 @@
 package com.doinglab.foodlens.sample
-
+import android.net.Uri
 import android.content.Intent
 import android.graphics.drawable.BitmapDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
+import android.widget.Button
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -27,7 +28,7 @@ import java.io.File
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
-    // 변수 초기화?
+
     private val binding: ActivityMainBinding by lazy {
         ActivityMainBinding.inflate(layoutInflater)
     }
@@ -47,19 +48,22 @@ class MainActivity : AppCompatActivity() {
     private var recognitionResult:RecognitionResult? = null
     private var foodImagePath = ""
 
-    // 실행
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         binding.list.adapter = listAdapter
 
-        // 갤러리 사진 버튼
         binding.btnRunCore.setOnClickListener {
             val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
             galleryForResult.launch(intent)
         }
-
-        // 카메라 실행 버튼
+        val button: Button = findViewById(R.id.button_open_website)
+        button.setOnClickListener {
+            // 웹사이트로 이동하는 코드
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.data = Uri.parse("https://example.com")
+            startActivity(intent)
+        }
         binding.btnRunUiCamera.setOnClickListener {
             foodLensUiService.startFoodLensCamera(this, foodLensActivityResult, object :
                 UIServiceResultHandler {
@@ -80,36 +84,34 @@ class MainActivity : AppCompatActivity() {
             })
         }
 
-        // 음식 편집 버튼
-        binding.btnRunUiEdit.setOnClickListener {
-            if(recognitionResult == null) {
-                return@setOnClickListener
-            }
-            recognitionResult?.let {
-                foodLensUiService.startFoodLensDataEdit(this, foodLensActivityResult, it, object : UIServiceResultHandler {
-                    override fun onSuccess(result: RecognitionResult?) {
-                        result?.let {
-                            setRecognitionResultData(result)
-                        }
-                    }
-                    override fun onError(errorReason: BaseError?) {
-                        Toast.makeText(this@MainActivity, errorReason?.getMessage(), Toast.LENGTH_SHORT).show()
-                        Log.d("foodLens", "foodLensEditResult onError ${errorReason?.getMessage()}")
-                    }
-
-                    override fun onCancel() {
-                        Log.d("foodLens", "foodLensEditResult cancel")
-                    }
-                })
-            }
-        }
+//        binding.btnRunUiEdit.setOnClickListener {
+//            if(recognitionResult == null) {
+//                return@setOnClickListener
+//            }
+//            recognitionResult?.let {
+//                foodLensUiService.startFoodLensDataEdit(this, foodLensActivityResult, it, object : UIServiceResultHandler {
+//                    override fun onSuccess(result: RecognitionResult?) {
+//                        result?.let {
+//                            setRecognitionResultData(result)
+//                        }
+//                    }
+//                    override fun onError(errorReason: BaseError?) {
+//                        Toast.makeText(this@MainActivity, errorReason?.getMessage(), Toast.LENGTH_SHORT).show()
+//                        Log.d("foodLens", "foodLensEditResult onError ${errorReason?.getMessage()}")
+//                    }
+//
+//                    override fun onCancel() {
+//                        Log.d("foodLens", "foodLensEditResult cancel")
+//                    }
+//                })
+//            }
+//        }
 
         //Set Option
         //setOptionFoodLensCore()
         //setOptionFoodLensUI()
     }
 
-    // 푸드렌즈 api 시작?
     private fun startFoodLensCore(byteData: ByteArray) {
         foodLensCoreService.predict(byteData, object : RecognitionResultHandler {
             override fun onSuccess(result: RecognitionResult?) {
@@ -124,7 +126,6 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    // 갤러리 사진 선택 기능?
     private var galleryForResult: ActivityResultLauncher<Intent> =
         registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
@@ -144,7 +145,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-    // 이거 뭐임?
+
     private var foodLensActivityResult: ActivityResultLauncher<Intent> =
         registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
@@ -152,7 +153,7 @@ class MainActivity : AppCompatActivity() {
             foodLensUiService.onActivityResult(result.resultCode, result.data)
         }
 
-    // 음식 데이터?
+
     private fun setRecognitionResultData(resultData: RecognitionResult) {
         val mutableList = mutableListOf<RecognitionItem>()
         recognitionResult = resultData

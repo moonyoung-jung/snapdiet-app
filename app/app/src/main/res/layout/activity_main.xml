@@ -7,42 +7,74 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="10dp"
+    android:background="@color/foodlens_green_500"
     tools:context=".MainActivity">
+
+    <!--    <Button-->
+<!--        android:id="@+id/btn_run_ui_edit"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="Run FoodLens UI Service (Edit)"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/btn_run_ui_camera"-->
+<!--        app:layout_constraintLeft_toLeftOf="parent"/>-->
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg"
+        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteY="60dp">
+
+        <!-- 다른 UI 요소들은 여기에 추가합니다 -->
+
+    </RelativeLayout>
 
     <Button
         android:id="@+id/btn_run_core"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Run FoodLens Core Service"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"/>
+        android:layout_marginLeft="4dp"
+        android:layout_marginTop="300dp"
+        android:text="음식 이미지 불러오기"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/button_open_website"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="4dp"
+
+        android:text="sanpdiet 게시판 이동"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_run_ui_camera" />
 
     <Button
         android:id="@+id/btn_run_ui_camera"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Run FoodLens UI Service (Camera)"
-        app:layout_constraintTop_toBottomOf="@+id/btn_run_core"
-        app:layout_constraintLeft_toLeftOf="parent"/>
+        android:layout_marginLeft="4dp"
+        android:layout_marginTop="4dp"
+        android:text="음식 이미지 촬영하기"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_run_core" />
 
-    <Button
-        android:id="@+id/btn_run_ui_edit"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Run FoodLens UI Service (Edit)"
-        app:layout_constraintTop_toBottomOf="@+id/btn_run_ui_camera"
-        app:layout_constraintLeft_toLeftOf="parent"/>
+<!--    <Button-->
+<!--        android:id="@+id/btn_run_ui_camera"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="sns 공유 "-->
+
+<!--        android:layout_marginLeft="4dp"-->
+<!--        android:layout_marginTop="4dp" />-->
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/list"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_width="400dp"
+        android:layout_height="198dp"
         android:orientation="vertical"
-        android:layout_marginTop="5dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintTop_toBottomOf="@+id/btn_run_ui_edit"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        />
+        app:layout_constraintLeft_toLeftOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
