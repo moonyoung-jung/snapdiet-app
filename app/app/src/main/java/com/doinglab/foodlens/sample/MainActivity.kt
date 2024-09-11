@@ -1,6 +1,12 @@
 package com.doinglab.foodlens.sample
 import android.net.Uri
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.PorterDuffXfermode
+import android.graphics.PorterDuff
 import android.graphics.drawable.BitmapDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -23,9 +29,12 @@ import com.doinglab.foodlens.sdk.ui.FoodLensUI
 import com.doinglab.foodlens.sdk.ui.UIServiceResultHandler
 import com.doinglab.foodlens.sdk.ui.config.FoodLensSettingConfig
 import com.doinglab.foodlens.sdk.ui.config.FoodLensUiConfig
-
 import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 import java.util.*
+import android.content.Context
+import androidx.core.content.FileProvider
 
 class MainActivity : AppCompatActivity() {
 
@@ -52,6 +61,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         binding.list.adapter = listAdapter
+
+        // SNS 공유 버튼 설정
+        binding.shareButton.setOnClickListener {
+            shareFoodInfo()
+        }
 
         binding.btnRunCore.setOnClickListener {
             val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
@@ -110,6 +124,125 @@ class MainActivity : AppCompatActivity() {
         //Set Option
         //setOptionFoodLensCore()
         //setOptionFoodLensUI()
+    }
+
+    // SNS 공유 기능
+    private fun shareFoodInfo() {
+        val items: List<RecognitionItem> = listAdapter.currentList
+
+        if (items.isNotEmpty()) {
+            val firstItem = items[0]
+
+            // 음식 정보 텍스트 구성
+            val shareText = """
+                Food Information:
+                Name: ${firstItem.name}
+                ${firstItem.foodNutrition}
+                ${firstItem.energy}
+            """.trimIndent()
+
+            // 음식 이미지 Bitmap 가져오기
+            val bitmapDrawable = firstItem.icon as BitmapDrawable
+            val originalBitmap = bitmapDrawable.bitmap
+
+            // 텍스트가 포함된 새로운 Bitmap 생성
+            val bitmapWithText = createImageWithText(originalBitmap, shareText)
+
+            // 음식 정보와 이미지를 공유
+            shareFoodInfoWithImage(bitmapWithText, shareText)
+        } else {
+            Toast.makeText(this, "No food information to share.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // 텍스트가 포함된 이미지 생성 함수 (자동으로 잘리지 않게 텍스트를 나누기)
+    private fun createImageWithText(bitmap: Bitmap, text: String): Bitmap {
+        // 복사된 비트맵 생성
+        val canvasBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true)
+        val canvas = Canvas(canvasBitmap)
+
+        // 텍스트 스타일 설정
+        val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.WHITE
+            textSize = 40f
+        }
+
+        val maxTextWidth = canvas.width - 20f // 텍스트가 그려질 최대 너비 (이미지 좌우 여백을 고려)
+
+        // 텍스트를 줄바꿈할 리스트 생성
+        val textLines = getTextLines(text, paint, maxTextWidth)
+
+        // 텍스트가 이미지 높이를 넘지 않도록 시작 위치 계산
+        val textHeight = paint.textSize + 10f
+        val totalTextHeight = textHeight * textLines.size
+        var textY = canvas.height - totalTextHeight - 20f // 이미지 하단에서 일정 간격 위로 텍스트 위치
+
+        // 여러 줄로 나뉜 텍스트를 한 줄씩 그리기
+        for (line in textLines) {
+            canvas.drawText(line, 10f, textY, paint)
+            textY += textHeight // 다음 줄 Y 위치
+        }
+
+        return canvasBitmap
+    }
+
+    // 텍스트를 이미지 너비에 맞춰 여러 줄로 나누는 함수
+    private fun getTextLines(text: String, paint: Paint, maxWidth: Float): List<String> {
+        val words = text.split(" ") // 텍스트를 공백 기준으로 단어 분리
+        val lines = mutableListOf<String>()
+        var currentLine = ""
+
+        for (word in words) {
+            // 현재 줄에 단어를 추가한 후 너비 계산
+            val testLine = if (currentLine.isEmpty()) word else "$currentLine $word"
+            if (paint.measureText(testLine) < maxWidth) {
+                currentLine = testLine // 텍스트가 너비를 넘지 않으면 현재 줄에 단어 추가
+            } else {
+                lines.add(currentLine) // 너비를 넘으면 현재 줄을 저장하고 다음 줄 시작
+                currentLine = word
+            }
+        }
+
+        // 마지막 줄도 추가
+        if (currentLine.isNotEmpty()) {
+            lines.add(currentLine)
+        }
+
+        return lines
+    }
+
+
+    private fun shareFoodInfoWithImage(bitmap: Bitmap, shareText: String) {
+        val imageUri = getImageUri(this, bitmap)
+
+        val shareIntent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_TEXT, shareText)
+            putExtra(Intent.EXTRA_STREAM, imageUri)
+            type = "image/png"
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+
+        startActivity(Intent.createChooser(shareIntent, "Share Food Info via"))
+    }
+
+    // 이미지를 임시 파일로 저장하고 URI를 반환하는 함수
+    private fun getImageUri(context: Context, bitmap: Bitmap): Uri? {
+        val imagesFolder = File(context.getExternalFilesDir(null), "shared_images")
+        var uri: Uri? = null
+        try {
+            imagesFolder.mkdirs()
+            val file = File(imagesFolder, "shared_image.png")
+            val stream = FileOutputStream(file)
+            bitmap.compress(Bitmap.CompressFormat.PNG, 90, stream)
+            stream.flush()
+            stream.close()
+            // FileProvider를 사용해 content:// URI 생성
+            uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+        return uri
     }
 
     private fun startFoodLensCore(byteData: ByteArray) {

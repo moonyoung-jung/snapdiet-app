@@ -11,12 +11,12 @@
     tools:context=".MainActivity">
 
     <!--    <Button-->
-<!--        android:id="@+id/btn_run_ui_edit"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:text="Run FoodLens UI Service (Edit)"-->
-<!--        app:layout_constraintTop_toBottomOf="@+id/btn_run_ui_camera"-->
-<!--        app:layout_constraintLeft_toLeftOf="parent"/>-->
+    <!--        android:id="@+id/btn_run_ui_edit"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:text="Run FoodLens UI Service (Edit)"-->
+    <!--        app:layout_constraintTop_toBottomOf="@+id/btn_run_ui_camera"-->
+    <!--        app:layout_constraintLeft_toLeftOf="parent"/>-->
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -59,14 +59,16 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btn_run_core" />
 
-<!--    <Button-->
-<!--        android:id="@+id/btn_run_ui_camera"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:text="sns 공유 "-->
-
-<!--        android:layout_marginLeft="4dp"-->
-<!--        android:layout_marginTop="4dp" />-->
+    <Button
+        android:id="@+id/shareButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="4dp"
+        android:layout_marginTop="4dp"
+        android:text="공유하기"
+        app:layout_constraintTop_toBottomOf="@+id/button_open_website"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/list"

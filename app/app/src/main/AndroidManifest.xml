@@ -13,9 +13,6 @@
         android:theme="@style/Theme.SampleCode"
         tools:targetApi="31">
         <activity
-            android:name=".SecondActivity"
-            android:exported="false" />
-        <activity
             android:name=".SplashActivity"
             android:exported="true">
             <intent-filter>
@@ -34,12 +31,25 @@
             </intent-filter>
         </activity>
 
+
         <meta-data
             android:name="com.doinglab.foodlens.sdk.apptoken"
             android:value="@string/foodlens_app_token" />
         <meta-data
             android:name="com.doinglab.foodlens.sdk.companytoken"
             android:value="@string/foodlens_company_token" />
+
+        <!-- FileProvider 설정 -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
     </application>
 
 </manifest>
