@@ -25,6 +25,14 @@
         tools:layout_editor_absoluteX="16dp"
         tools:layout_editor_absoluteY="60dp">
 
+        <WebView
+            android:id="@+id/webview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            tools:layout_editor_absoluteX="10dp"
+            tools:layout_editor_absoluteY="10dp" />
+
         <!-- 다른 UI 요소들은 여기에 추가합니다 -->
 
     </RelativeLayout>

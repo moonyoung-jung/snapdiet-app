@@ -34,6 +34,8 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.util.*
 import android.content.Context
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import androidx.core.content.FileProvider
 
 class MainActivity : AppCompatActivity() {
@@ -71,11 +73,12 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
             galleryForResult.launch(intent)
         }
+
         val button: Button = findViewById(R.id.button_open_website)
         button.setOnClickListener {
             // 웹사이트로 이동하는 코드
-            val intent = Intent(Intent.ACTION_VIEW)
-            intent.data = Uri.parse("https://example.com")
+
+            val intent = Intent(this, WebViewActivity::class.java)
             startActivity(intent)
         }
         binding.btnRunUiCamera.setOnClickListener {
