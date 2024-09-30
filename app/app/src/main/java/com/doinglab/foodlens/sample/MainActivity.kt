@@ -37,6 +37,12 @@ import android.content.Context
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.core.content.FileProvider
+import androidx.lifecycle.ViewModelProvider
+import com.doinglab.foodlens.sample.db.FoodDatabase
+import com.doinglab.foodlens.sample.db.entity.FoodEntity
+import com.doinglab.foodlens.sample.db.repository.FoodRepository
+import com.doinglab.foodlens.sample.db.repository.FoodViewModel
+import com.doinglab.foodlens.sample.db.repository.FoodViewModelFactory
 
 class MainActivity : AppCompatActivity() {
 
@@ -58,6 +64,9 @@ class MainActivity : AppCompatActivity() {
 
     private var recognitionResult:RecognitionResult? = null
     private var foodImagePath = ""
+
+    private lateinit var viewModel: FoodViewModel
+    private lateinit var repository: FoodRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -99,6 +108,39 @@ class MainActivity : AppCompatActivity() {
                     Log.d("foodLens", "foodLensCameraResult cancel")
                 }
             })
+        }
+
+        // Repository 초기화
+        val dao = FoodDatabase.getInstance(application).foodDao()
+        repository = FoodRepository(dao)
+
+        // ViewModelFactory 초기화
+        val factory = FoodViewModelFactory(application, repository)
+        viewModel = ViewModelProvider(this, factory)[FoodViewModel::class.java]
+
+        binding.saveButton.setOnClickListener {
+            // 인식된 음식 정보를 RoomDB에 저장
+            if (listAdapter.currentList.isNotEmpty()) {
+                val firstItem = listAdapter.currentList[0]
+                val foodEntity = FoodEntity(
+                    name = firstItem.name,
+                    carbohydrate = 10.0, // 예시 값
+                    protein = 5.0, // 예시 값
+                    fat = 3.0, // 예시 값
+                    energy = 200.0, // 예시 값
+                    imagePath = foodImagePath // 이미지 경로 저장
+                )
+
+                viewModel.insertFood(foodEntity)
+            } else {
+                Toast.makeText(this, "저장할 음식 정보가 없습니다.", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        binding.viewDietButton.setOnClickListener {
+            // "식단 모아보기" 버튼 클릭 시 새로운 액티비티로 이동
+            val intent = Intent(this, DietViewActivity::class.java)
+            startActivity(intent)
         }
 
 //        binding.btnRunUiEdit.setOnClickListener {
@@ -336,7 +378,7 @@ class MainActivity : AppCompatActivity() {
 
                 mutableList.add(
                     RecognitionItem(
-                        name = "${getString(R.string.name)} : ${it.fullName}",
+                        name = "${it.fullName}",
                         icon = BitmapDrawable(resources, bitmap),
                         foodPosition = "${getString(R.string.food_position)} : ${xMin}, ${yMin}, ${xMax}, $yMax",
                         foodNutrition = "${getString(R.string.carbohydrate)} : ${carbohydrate}, " +
