@@ -73,23 +73,11 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         binding.list.adapter = listAdapter
 
-        // SNS 공유 버튼 설정
-        binding.shareButton.setOnClickListener {
-            shareFoodInfo()
-        }
-
         binding.btnRunCore.setOnClickListener {
             val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
             galleryForResult.launch(intent)
         }
 
-        val button: Button = findViewById(R.id.button_open_website)
-        button.setOnClickListener {
-            // 웹사이트로 이동하는 코드
-
-            val intent = Intent(this, WebViewActivity::class.java)
-            startActivity(intent)
-        }
         binding.btnRunUiCamera.setOnClickListener {
             foodLensUiService.startFoodLensCamera(this, foodLensActivityResult, object :
                 UIServiceResultHandler {
@@ -110,6 +98,19 @@ class MainActivity : AppCompatActivity() {
             })
         }
 
+        val button: Button = findViewById(R.id.button_open_website)
+        button.setOnClickListener {
+            // 웹사이트로 이동하는 코드
+
+            val intent = Intent(this, WebViewActivity::class.java)
+            startActivity(intent)
+        }
+
+        // SNS 공유 버튼 설정
+        binding.shareButton.setOnClickListener {
+            shareFoodInfo()
+        }
+
         // Repository 초기화
         val dao = FoodDatabase.getInstance(application).foodDao()
         repository = FoodRepository(dao)
@@ -121,17 +122,34 @@ class MainActivity : AppCompatActivity() {
         binding.saveButton.setOnClickListener {
             // 인식된 음식 정보를 RoomDB에 저장
             if (listAdapter.currentList.isNotEmpty()) {
-                val firstItem = listAdapter.currentList[0]
-                val foodEntity = FoodEntity(
-                    name = firstItem.name,
-                    carbohydrate = 10.0, // 예시 값
-                    protein = 5.0, // 예시 값
-                    fat = 3.0, // 예시 값
-                    energy = 200.0, // 예시 값
-                    imagePath = foodImagePath // 이미지 경로 저장
-                )
+                recognitionResult?.let { result ->
+                    result.foods.forEach { food ->
+                        val nutrition = food.userSelected ?:food.candidates?.firstOrNull()
 
-                viewModel.insertFood(foodEntity)
+                        nutrition?.let {
+                            val foodEntity = FoodEntity(
+                                name = food.fullName ?: food.name,
+                                carbohydrate = nutrition.carbohydrate, // 예시 값
+                                protein = nutrition.protein, // 예시 값
+                                fat = nutrition.fat, // 예시 값
+                                energy = nutrition.energy, // 예시 값
+                                imagePath = foodImagePath // 이미지 경로 저장
+                            )
+
+                            viewModel.insertFood(foodEntity)
+                        }
+                    }
+                }
+//                val foodEntity = FoodEntity(
+//                    name = firstItem.name,
+//                    carbohydrate = 10.0, // 예시 값
+//                    protein = 5.0, // 예시 값
+//                    fat = 3.0, // 예시 값
+//                    energy = 200.0, // 예시 값
+//                    imagePath = foodImagePath // 이미지 경로 저장
+//                )
+
+//                viewModel.insertFood(foodEntity)
             } else {
                 Toast.makeText(this, "저장할 음식 정보가 없습니다.", Toast.LENGTH_SHORT).show()
             }
@@ -255,7 +273,6 @@ class MainActivity : AppCompatActivity() {
 
         return lines
     }
-
 
     private fun shareFoodInfoWithImage(bitmap: Bitmap, shareText: String) {
         val imageUri = getImageUri(this, bitmap)
