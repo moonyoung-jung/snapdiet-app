@@ -133,7 +133,8 @@ class MainActivity : AppCompatActivity() {
                                 protein = nutrition.protein, // 예시 값
                                 fat = nutrition.fat, // 예시 값
                                 energy = nutrition.energy, // 예시 값
-                                imagePath = foodImagePath // 이미지 경로 저장
+                                imagePath = foodImagePath, // 이미지 경로 저장
+                                timestamp = System.currentTimeMillis()
                             )
 
                             viewModel.insertFood(foodEntity)
