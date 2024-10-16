@@ -123,8 +123,17 @@ class MainActivity : AppCompatActivity() {
             // 인식된 음식 정보를 RoomDB에 저장
             if (listAdapter.currentList.isNotEmpty()) {
                 recognitionResult?.let { result ->
+
+                    val originBitmap = BitmapUtil.getBitmapFromFile(foodImagePath)
+
                     result.foods.forEach { food ->
                         val nutrition = food.userSelected ?:food.candidates?.firstOrNull()
+
+                        val xMin = food.position?.xmin ?: 0
+                        val yMin = food.position?.ymin ?: 0
+                        val xMax = food.position?.xmax ?: originBitmap?.width ?: 0
+                        val yMax = food.position?.ymax ?: originBitmap?.height ?: 0
+                        val bitmap = BitmapUtil.cropBitmap(originBitmap, xMin, yMin, xMax, yMax)
 
                         nutrition?.let {
                             val foodEntity = FoodEntity(
@@ -133,7 +142,7 @@ class MainActivity : AppCompatActivity() {
                                 protein = nutrition.protein, // 예시 값
                                 fat = nutrition.fat, // 예시 값
                                 energy = nutrition.energy, // 예시 값
-                                imagePath = foodImagePath, // 이미지 경로 저장
+                                imagePath = bitmap, // 이미지 경로 저장
                                 timestamp = System.currentTimeMillis()
                             )
 
