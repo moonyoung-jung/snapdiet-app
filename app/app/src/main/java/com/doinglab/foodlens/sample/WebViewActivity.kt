@@ -13,10 +13,18 @@ class WebViewActivity : AppCompatActivity() {
         // WebView를 초기화
         val webView: WebView = findViewById(R.id.webview)
 
-        webView.apply {
-            webView.settings.javaScriptEnabled = true  // JavaScript 활성화
-            webView.webViewClient = WebViewClient()    // 외부 브라우저가 아닌 WebView에서 열리도록 설정
+        // ID 토큰 수신
+        val idToken = intent.getStringExtra("idToken")
+
+        // WebView 설정
+        webView.apply {   // 외부 브라우저가 아닌 WebView에서 열리도록 설정
+            settings.javaScriptEnabled = true  // JavaScript 활성화
+            webViewClient = WebViewClient()    // 외부 브라우저가 아닌 WebView에서 열리도록 설정
         }
         webView.loadUrl("http://snapdiet.myoung.my:8080/articles")
+
+        // URL 로드 (예시: ID 토큰을 쿼리 파라미터로 포함)
+        val url = "http://snapdiet.myoung.my:8080/articles?idToken=$idToken"
+        webView.loadUrl(url)
     }
 }

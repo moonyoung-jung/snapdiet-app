@@ -1,7 +1,9 @@
 package com.doinglab.foodlens.sample.db.entity
 
+import android.graphics.Bitmap
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.util.Date
 
 @Entity(tableName = "food_table")
 data class FoodEntity (
@@ -11,5 +13,6 @@ data class FoodEntity (
     val protein: Double,
     val fat: Double,
     val energy: Double,
-    val imagePath: String // 이미지 경로를 저장
+    val imagePath: String?, // 이미지 경로를 저장
+    val timestamp: Long = System.currentTimeMillis()
 )

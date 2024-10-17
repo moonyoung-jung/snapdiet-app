@@ -5,18 +5,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:padding="10dp"
     android:background="@color/foodlens_green_500"
     tools:context=".MainActivity">
-
-    <!--    <Button-->
-    <!--        android:id="@+id/btn_run_ui_edit"-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:text="Run FoodLens UI Service (Edit)"-->
-    <!--        app:layout_constraintTop_toBottomOf="@+id/btn_run_ui_camera"-->
-    <!--        app:layout_constraintLeft_toLeftOf="parent"/>-->
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -48,16 +39,6 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/button_open_website"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="4dp"
-
-        android:text="sanpdiet 게시판 이동"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_run_ui_camera" />
-
-    <Button
         android:id="@+id/btn_run_ui_camera"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -68,11 +49,20 @@
         app:layout_constraintTop_toBottomOf="@+id/btn_run_core" />
 
     <Button
+        android:id="@+id/button_open_website"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="4dp"
+
+        android:text="sanpdiet 게시판 이동"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_run_ui_camera" />
+
+    <Button
         android:id="@+id/shareButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="4dp"
-        android:layout_marginTop="4dp"
         android:text="공유하기"
         app:layout_constraintTop_toBottomOf="@+id/button_open_website"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -99,6 +89,19 @@
         app:layout_constraintTop_toBottomOf="@+id/saveButton"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent" />
+
+    <!-- 로그아웃 버튼 -->
+    <Button
+        android:id="@+id/button_logout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Logout"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@+id/viewDietButton"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/list"
