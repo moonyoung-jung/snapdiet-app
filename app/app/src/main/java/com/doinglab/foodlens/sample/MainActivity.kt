@@ -1,14 +1,16 @@
 package com.doinglab.foodlens.sample
-
 import android.net.Uri
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.PorterDuffXfermode
+import android.graphics.PorterDuff
 import android.graphics.drawable.BitmapDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import android.widget.Button
 import android.widget.Toast
@@ -118,6 +120,7 @@ class MainActivity : AppCompatActivity() {
         val button: Button = findViewById(R.id.button_open_website)
         button.setOnClickListener {
             // 웹사이트로 이동하는 코드
+
             val intent = Intent(this, WebViewActivity::class.java)
             intent.putExtra("idToken", idToken) // ID 토큰을 WebViewActivity로 전달
             startActivity(intent)
@@ -159,7 +162,7 @@ class MainActivity : AppCompatActivity() {
                                 protein = nutrition.protein, // 예시 값
                                 fat = nutrition.fat, // 예시 값
                                 energy = nutrition.energy, // 예시 값
-                                imagePath = foodImagePath, // 이미지 경로 저장
+                                imagePath = foodImagePath // 이미지 경로 저장
                             )
 
                             viewModel.insertFood(foodEntity)
@@ -177,7 +180,28 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-    }
+        binding.btnRunUiEdit.setOnClickListener {
+            if(recognitionResult == null) {
+                return@setOnClickListener
+            }
+            recognitionResult?.let {
+                foodLensUiService.startFoodLensDataEdit(this, foodLensActivityResult, it, object : UIServiceResultHandler {
+                    override fun onSuccess(result: RecognitionResult?) {
+                        result?.let {
+                            setRecognitionResultData(result)
+                        }
+                    }
+                    override fun onError(errorReason: BaseError?) {
+                        Toast.makeText(this@MainActivity, errorReason?.getMessage(), Toast.LENGTH_SHORT).show()
+                        Log.d("foodLens", "foodLensEditResult onError ${errorReason?.getMessage()}")
+                    }
+
+                    override fun onCancel() {
+                        Log.d("foodLens", "foodLensEditResult cancel")
+                    }
+                })
+            }
+        }
 
     // 로그아웃 기능
     private fun logout() {

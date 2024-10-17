@@ -1,9 +1,7 @@
 package com.doinglab.foodlens.sample.db.entity
 
-import android.graphics.Bitmap
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.util.Date
 
 @Entity(tableName = "food_table")
 data class FoodEntity (
