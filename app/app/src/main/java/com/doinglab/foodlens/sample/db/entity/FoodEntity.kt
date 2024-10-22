@@ -11,6 +11,6 @@ data class FoodEntity (
     val protein: Double,
     val fat: Double,
     val energy: Double,
-    val imagePath: String?, // 이미지 경로를 저장
+    val imagePath: ByteArray?, // 이미지 경로를 저장
     val timestamp: Long = System.currentTimeMillis()
 )

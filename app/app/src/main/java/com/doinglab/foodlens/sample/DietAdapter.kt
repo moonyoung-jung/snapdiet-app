@@ -1,5 +1,6 @@
 package com.doinglab.foodlens.sample
 
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.view.LayoutInflater
 import android.view.View
@@ -42,8 +43,12 @@ class DietAdapter(private var foodList: MutableList<FoodEntity>,
         holder.foodEnergy.text = "Energy: ${food.energy} kcal"
         holder.timestamp.text = "저장된 시간: ${formattedDate}"
 
+        fun byteArrayToBitmap(byteArray: ByteArray): Bitmap {
+            return BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
+        }
+
         // 이미지 로딩
-        val bitmap = BitmapFactory.decodeFile(food.imagePath)
+        val bitmap = byteArrayToBitmap(food.imagePath!!)
         holder.foodImage.setImageBitmap(bitmap)
 
         // 항목을 길게 누르면 삭제
