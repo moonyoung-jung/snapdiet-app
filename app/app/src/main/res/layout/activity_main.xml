@@ -58,6 +58,14 @@
             />
         <!-- 다른 UI 요소들은 여기에 추가합니다 -->
 
+        <Button
+            android:id="@+id/button_logout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Logout"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp"
+            />
     </RelativeLayout>
 
     <Button

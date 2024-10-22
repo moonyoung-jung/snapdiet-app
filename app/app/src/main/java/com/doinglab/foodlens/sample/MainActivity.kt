@@ -87,11 +87,11 @@ class MainActivity : AppCompatActivity() {
         // GoogleSignInClient 초기화
         googleSignInClient = GoogleSignIn.getClient(this, gso)
 
-//        // 로그아웃 버튼 클릭 리스너 설정
-//        val logoutButton: Button = findViewById(R.id.button_logout)
-//        logoutButton.setOnClickListener {
-//            logout()
-//        }
+        // 로그아웃 버튼 클릭 리스너 설정
+        val logoutButton: Button = findViewById(R.id.button_logout)
+        logoutButton.setOnClickListener {
+            logout()
+        }
 
         binding.btnRunUiCamera.setOnClickListener {
             foodLensUiService.startFoodLensCamera(this, foodLensActivityResult, object :
