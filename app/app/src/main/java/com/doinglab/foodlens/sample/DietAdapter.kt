@@ -30,7 +30,6 @@ class DietAdapter(private var foodList: MutableList<FoodEntity>,
         holder.foodName.text = food.name
         holder.foodNutrition.text = "Carbohydrate: ${food.carbohydrate}g, Protein: ${food.protein}g, Fat: ${food.fat}g"
         holder.foodEnergy.text = "Energy: ${food.energy} kcal"
-        holder.timestamp.text = "저장된 시간: ${food.timestamp}"
 
         // 이미지 로딩
         val bitmap = BitmapFactory.decodeFile(food.imagePath)
