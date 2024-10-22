@@ -8,6 +8,9 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.doinglab.foodlens.sample.db.entity.FoodEntity
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 class DietAdapter(private var foodList: MutableList<FoodEntity>,
                   private val onItemLongClick: (FoodEntity) -> Unit) : RecyclerView.Adapter<DietAdapter.DietViewHolder>() {
@@ -27,9 +30,17 @@ class DietAdapter(private var foodList: MutableList<FoodEntity>,
 
     override fun onBindViewHolder(holder: DietViewHolder, position: Int) {
         val food = foodList[position]
+        val dateTime = Instant.ofEpochMilli(food.timestamp)
+            .atZone(ZoneId.systemDefault())
+            .toLocalDateTime()
+
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+        val formattedDate = dateTime.format(formatter)
+
         holder.foodName.text = food.name
         holder.foodNutrition.text = "Carbohydrate: ${food.carbohydrate}g, Protein: ${food.protein}g, Fat: ${food.fat}g"
         holder.foodEnergy.text = "Energy: ${food.energy} kcal"
+        holder.timestamp.text = "저장된 시간: ${formattedDate}"
 
         // 이미지 로딩
         val bitmap = BitmapFactory.decodeFile(food.imagePath)
