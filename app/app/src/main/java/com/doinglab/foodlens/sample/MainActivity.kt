@@ -39,10 +39,14 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.util.*
+import android.content.SharedPreferences
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 
 class MainActivity : AppCompatActivity() {
-
-
+    // GoogleSignInClient를 선언합니다.
+    private lateinit var googleSignInClient: GoogleSignInClient
 
     private val binding: ActivityMainBinding by lazy {
         ActivityMainBinding.inflate(layoutInflater)
@@ -71,9 +75,22 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         binding.list.adapter = listAdapter
 
-//        binding.btnRunCore.setOnClickListener {
-//            val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-//            galleryForResult.launch(intent)
+        // LoginActivity에서 전달된 ID 토큰 받기
+        val idToken = intent.getStringExtra("idToken")
+
+        // Google Sign-In 옵션 설정
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.default_web_client_id)) // 웹 클라이언트 ID
+            .requestEmail() // 이메일 요청
+            .build()
+
+        // GoogleSignInClient 초기화
+        googleSignInClient = GoogleSignIn.getClient(this, gso)
+
+//        // 로그아웃 버튼 클릭 리스너 설정
+//        val logoutButton: Button = findViewById(R.id.button_logout)
+//        logoutButton.setOnClickListener {
+//            logout()
 //        }
 
         binding.btnRunUiCamera.setOnClickListener {
@@ -99,8 +116,8 @@ class MainActivity : AppCompatActivity() {
         val button: Button = findViewById(R.id.button_open_website)
         button.setOnClickListener {
             // 웹사이트로 이동하는 코드
-
             val intent = Intent(this, WebViewActivity::class.java)
+            intent.putExtra("idToken", idToken) // ID 토큰을 WebViewActivity로 전달
             startActivity(intent)
         }
 
@@ -185,6 +202,22 @@ class MainActivity : AppCompatActivity() {
         //Set Option
         //setOptionFoodLensCore()
         //setOptionFoodLensUI()
+    }
+
+    // 로그아웃 기능
+    private fun logout() {
+        // Google Sign-Out
+        googleSignInClient.signOut().addOnCompleteListener {
+            // SharedPreferences에서 토큰 삭제
+            val sharedPreferences: SharedPreferences = getSharedPreferences("YourAppPrefs", MODE_PRIVATE)
+            val editor = sharedPreferences.edit()
+            editor.remove("access_token") // 액세스 토큰 삭제
+            editor.apply()
+            Log.d("MainActivity", "User logged out")
+            // 로그인 화면으로 이동
+            finish() // 현재 액티비티 종료
+            startActivity(Intent(this, LoginActivity::class.java)) // 로그인 액티비티로 이동
+        }
     }
 
     // SNS 공유 기능
