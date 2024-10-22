@@ -1,14 +1,12 @@
 package com.doinglab.foodlens.sample
-import android.net.Uri
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import android.graphics.PorterDuffXfermode
-import android.graphics.PorterDuff
 import android.graphics.drawable.BitmapDrawable
-import androidx.appcompat.app.AppCompatActivity
+import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
@@ -16,7 +14,15 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
+import androidx.lifecycle.ViewModelProvider
 import com.doinglab.foodlens.sample.databinding.ActivityMainBinding
+import com.doinglab.foodlens.sample.db.FoodDatabase
+import com.doinglab.foodlens.sample.db.entity.FoodEntity
+import com.doinglab.foodlens.sample.db.repository.FoodRepository
+import com.doinglab.foodlens.sample.db.repository.FoodViewModel
+import com.doinglab.foodlens.sample.db.repository.FoodViewModelFactory
 import com.doinglab.foodlens.sample.listview.RecognitionItem
 import com.doinglab.foodlens.sample.listview.RecognitionListAdapter
 import com.doinglab.foodlens.sample.util.BitmapUtil
@@ -33,24 +39,10 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.util.*
-import android.content.Context
-import android.content.SharedPreferences
-import androidx.core.content.FileProvider
-import androidx.lifecycle.ViewModelProvider
-import com.doinglab.foodlens.sample.db.FoodDatabase
-import com.doinglab.foodlens.sample.db.entity.FoodEntity
-import com.doinglab.foodlens.sample.db.repository.FoodRepository
-import com.doinglab.foodlens.sample.db.repository.FoodViewModel
-import com.doinglab.foodlens.sample.db.repository.FoodViewModelFactory
-import com.doinglab.foodlens.sdk.ui.activity.info.FoodLensInfoViewModel
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 
 class MainActivity : AppCompatActivity() {
 
-    // GoogleSignInClient를 선언합니다.
-    private lateinit var googleSignInClient: GoogleSignInClient
+
 
     private val binding: ActivityMainBinding by lazy {
         ActivityMainBinding.inflate(layoutInflater)
@@ -79,23 +71,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         binding.list.adapter = listAdapter
 
-        // LoginActivity에서 전달된 ID 토큰 받기
-        val idToken = intent.getStringExtra("idToken")
-
-        // Google Sign-In 옵션 설정
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id)) // 웹 클라이언트 ID
-            .requestEmail() // 이메일 요청
-            .build()
-
-        // GoogleSignInClient 초기화
-        googleSignInClient = GoogleSignIn.getClient(this, gso)
-
-        // 로그아웃 버튼 클릭 리스너 설정
-        val logoutButton: Button = findViewById(R.id.button_logout)
-        logoutButton.setOnClickListener {
-            logout()
-        }
+//        binding.btnRunCore.setOnClickListener {
+//            val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+//            galleryForResult.launch(intent)
+//        }
 
         binding.btnRunUiCamera.setOnClickListener {
             foodLensUiService.startFoodLensCamera(this, foodLensActivityResult, object :
@@ -122,7 +101,6 @@ class MainActivity : AppCompatActivity() {
             // 웹사이트로 이동하는 코드
 
             val intent = Intent(this, WebViewActivity::class.java)
-            intent.putExtra("idToken", idToken) // ID 토큰을 WebViewActivity로 전달
             startActivity(intent)
         }
 
@@ -143,17 +121,8 @@ class MainActivity : AppCompatActivity() {
             // 인식된 음식 정보를 RoomDB에 저장
             if (listAdapter.currentList.isNotEmpty()) {
                 recognitionResult?.let { result ->
-
-                    val originBitmap = BitmapUtil.getBitmapFromFile(foodImagePath)
-
                     result.foods.forEach { food ->
                         val nutrition = food.userSelected ?:food.candidates?.firstOrNull()
-
-                        val xMin = food.position?.xmin ?: 0
-                        val yMin = food.position?.ymin ?: 0
-                        val xMax = food.position?.xmax ?: originBitmap?.width ?: 0
-                        val yMax = food.position?.ymax ?: originBitmap?.height ?: 0
-                        val bitmap = BitmapUtil.cropBitmap(originBitmap, xMin, yMin, xMax, yMax)
 
                         nutrition?.let {
                             val foodEntity = FoodEntity(
@@ -169,6 +138,16 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                 }
+//                val foodEntity = FoodEntity(
+//                    name = firstItem.name,
+//                    carbohydrate = 10.0, // 예시 값
+//                    protein = 5.0, // 예시 값
+//                    fat = 3.0, // 예시 값
+//                    energy = 200.0, // 예시 값
+//                    imagePath = foodImagePath // 이미지 경로 저장
+//                )
+
+//                viewModel.insertFood(foodEntity)
             } else {
                 Toast.makeText(this, "저장할 음식 정보가 없습니다.", Toast.LENGTH_SHORT).show()
             }
@@ -203,20 +182,9 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-    // 로그아웃 기능
-    private fun logout() {
-        // Google Sign-Out
-        googleSignInClient.signOut().addOnCompleteListener {
-            // SharedPreferences에서 토큰 삭제
-            val sharedPreferences: SharedPreferences = getSharedPreferences("YourAppPrefs", MODE_PRIVATE)
-            val editor = sharedPreferences.edit()
-            editor.remove("access_token") // 액세스 토큰 삭제
-            editor.apply()
-            Log.d("MainActivity", "User logged out")
-            // 로그인 화면으로 이동
-            finish() // 현재 액티비티 종료
-            startActivity(Intent(this, LoginActivity::class.java)) // 로그인 액티비티로 이동
-        }
+        //Set Option
+        //setOptionFoodLensCore()
+        //setOptionFoodLensUI()
     }
 
     // SNS 공유 기능
@@ -350,6 +318,26 @@ class MainActivity : AppCompatActivity() {
             }
         })
     }
+
+    private var galleryForResult: ActivityResultLauncher<Intent> =
+        registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == RESULT_OK) {
+                result.data?.data?.let {
+                    val filePathColumn = arrayOf(MediaStore.Images.Media.DATA)
+                    val cursor = contentResolver?.query(it, filePathColumn, null, null, null)
+                    cursor?.moveToFirst()
+                    val columnIndex = cursor?.getColumnIndex(filePathColumn[0])
+                    foodImagePath = cursor?.getString(columnIndex ?: return@let) ?: return@let
+                    cursor.close()
+
+                    val byteData = BitmapUtil.readContentIntoByteArray(File(foodImagePath))
+                    startFoodLensCore(byteData)
+                }
+            }
+        }
+
 
     private var foodLensActivityResult: ActivityResultLauncher<Intent> =
         registerForActivityResult(
